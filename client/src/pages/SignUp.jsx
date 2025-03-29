@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import OAuth from '../components/OAuth';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -121,6 +122,7 @@ const SignUp = () => {
               'Sign Up'
             )}
           </button>
+          <OAuth/>
         </form>
 
         {error && <p className="text-red-500 text-center mt-2">Signup failed. Try again!</p>}

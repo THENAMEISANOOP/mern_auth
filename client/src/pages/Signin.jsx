@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { signinStart, signinSuccess, signinFailure } from '../redux/user/userSlice';
+import OAuth from '../components/OAuth';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -24,17 +25,17 @@ const SignIn = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json(); // Convert response to JSON
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Invalid email or password'); // Show custom error
+        throw new Error(data.message || 'Invalid email or password');
       }
 
-      dispatch(signinSuccess(data)); // Store user data in Redux
-      navigate('/'); // Redirect to home
+      dispatch(signinSuccess(data));
+      navigate('/');
 
     } catch (error) {
-      dispatch(signinFailure(error.message)); // Show user-friendly error message
+      dispatch(signinFailure(error.message));
     }
   };
 
@@ -87,6 +88,14 @@ const SignIn = () => {
               'Sign In'
             )}
           </button>
+
+          <div className="my-4 flex items-center justify-center">
+            <span className="text-gray-500 text-sm">OR</span>
+          </div>
+
+          {/* Google Sign-In Button */}
+          <OAuth />
+
         </form>
 
         {error && <p className="text-red-500 text-center mt-2">{error}</p>}
