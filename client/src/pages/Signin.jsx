@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { signinStart, signinSuccess, signinFailure } from '../redux/user/userSlice';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Corrected variable name (lowercase 'n')
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -13,33 +15,26 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(false);
+    dispatch(signinStart());
 
     try {
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json(); // Convert response to JSON
+
       if (!res.ok) {
-        throw new Error(`HTTP error! Status: ${res.status}`);
+        throw new Error(data.message || 'Invalid email or password'); // Show custom error
       }
 
-      const data = await res.json();
-      console.log('Login successful:', data);
-
-      // Redirect to home page after successful login
-      navigate('/');
+      dispatch(signinSuccess(data)); // Store user data in Redux
+      navigate('/'); // Redirect to home
 
     } catch (error) {
-      setError(true);
-      console.error('Sign-in failed:', error.message);
-    } finally {
-      setLoading(false);
+      dispatch(signinFailure(error.message)); // Show user-friendly error message
     }
   };
 
@@ -82,25 +77,9 @@ const SignIn = () => {
           >
             {loading ? (
               <>
-                <svg
-                  className="w-5 h-5 animate-spin text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8h-4l3.5 3.5L20 12h-4a8 8 0 01-8 8v-4l-3.5 3.5L4 12z"
-                  ></path>
+                <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8h-4l3.5 3.5L20 12h-4a8 8 0 01-8 8v-4l-3.5 3.5L4 12z"></path>
                 </svg>
                 <span>Processing...</span>
               </>
@@ -110,7 +89,7 @@ const SignIn = () => {
           </button>
         </form>
 
-        {error && <p className="text-red-500 text-center mt-2">Sign-in failed. Try again!</p>}
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
 
         <p className="text-center text-gray-600 mt-4 animate-slideUp">
           Don't have an account? <Link to="/sign-up" className="text-blue-600 hover:underline">Sign Up</Link>
