@@ -23,9 +23,9 @@ mongoose.connect(process.env.MONGO, {
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes)
 
-
-// Middleware setup 
+// middleware
 app.use((err, req, res, next) => {
+    console.error("Error Details:", err); // Log full error
     const statusCode = err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
@@ -33,8 +33,10 @@ app.use((err, req, res, next) => {
         success: false,
         message,
         statusCode,
+        error: err.stack, // Include full error stack
     });
 });
+
 
 
 
