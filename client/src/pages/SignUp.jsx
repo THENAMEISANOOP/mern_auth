@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -31,6 +32,9 @@ const SignUp = () => {
 
       const data = await res.json();
       console.log(data);
+      
+      // Redirect to Sign In page after successful signup
+      navigate('/sign-in');
     } catch (error) {
       setError(true);
       console.error("Signup failed:", error.message);
@@ -122,7 +126,7 @@ const SignUp = () => {
         {error && <p className="text-red-500 text-center mt-2">Signup failed. Try again!</p>}
 
         <p className="text-center text-gray-600 mt-4 animate-slideUp">
-          Already have an account? <Link to="/signin" className="text-blue-600 hover:underline">Sign In</Link>
+          Already have an account? <Link to="/sign-in" className="text-blue-600 hover:underline">Sign In</Link>
         </p>
       </div>
     </div>
